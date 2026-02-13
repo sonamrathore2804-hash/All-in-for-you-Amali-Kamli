@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>All In For You</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:ital,wght@0,400;0,700;1,400&family=Sacramento&family=Instrument+Sans:ital,wght@1,500&display=swap" rel="stylesheet">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  height:100vh;
+  background: radial-gradient(circle at center, #0e3b2e 0%, #04140f 75%);
+  color:#eaeaea;
+  font-family:'Inter', sans-serif;
+  overflow:hidden;
+}
+.hidden { display:none !important; }
+
+.center {
+  height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+}
+
+/* Landing */
+#landing h1 { font-family:'Playfair Display', serif; font-size:3.5rem; margin-bottom:1rem; }
+button {
+  margin-top:2rem; padding:15px 35px;
+  background:transparent; border:1px solid #eaeaea;
+  color:#eaeaea; cursor:pointer; letter-spacing:2px;
+  text-transform: uppercase; transition: 0.3s;
+}
+button:hover { background:#eaeaea; color:#04140f; }
+
+/* Table Layout */
+#table { display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 2vh 0; }
+
+/* BIG VERTICAL CARDS */
+.cards { display:flex; gap:20px; z-index: 10; height: 350px; align-items: center; }
+.card { width:200px; height:320px; perspective:1200px; cursor:pointer; }
+.card-inner { width:100%; height:100%; transform-style:preserve-3d; transition:transform 0.8s ease; position:relative; }
+.card.flip .card-inner { transform:rotateY(180deg); }
+
+.card-face {
+  position:absolute; width:100%; height:100%;
+  backface-visibility:hidden; border-radius:15px;
+  display:flex; flex-direction: column;
+  align-items:center; justify-content:center; 
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  padding: 15px;
+  background-color: #fff;
+}
+.card-back { background:#0b0b0b; border:3px solid #b11226; color: #b11226; font-size: 4rem; justify-content: center; }
+
+.card-front {
+  transform:rotateY(180deg);
+  position: relative;
+  border: 1px solid #ddd;
+}
+
+/* Corner Label Styling */
+.corner {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 0.9;
+    color: #b11226;
+    font-family: 'Playfair Display', serif;
+}
+.corner.top { top: 10px; left: 10px; }
+.corner.bottom { bottom: 10px; right: 10px; transform: rotate(180deg); }
+.corner-rank { font-size: 1.8rem; font-weight: bold; }
+.corner-suit { font-size: 1.4rem; }
+
+/* Center Image & Msg */
+.card-photo { width: 90%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; border: 1px solid rgba(0,0,0,0.1); }
+.card-msg { margin-top: 5px; font-size: 0.8rem; color: #111; font-weight: 700; text-align: center; line-height: 1.2; padding: 0 10px; }
+
+/* CHIPS AREA */
+.action-area { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+.pot { width:160px; height:160px; border-radius:50%; border:3px dashed rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; }
+.prize-trigger { font-size: 5rem; cursor: pointer; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+.chips { display:flex; gap:15px; justify-content: center; }
+.chip { width:95px; height:95px; border-radius:50%; background:#b11226; border: 4px dashed #fff; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight: 900; text-align: center; cursor:pointer; transition: 0.3s; padding: 10px; }
+.chip.used { opacity:0.1; pointer-events:none; }
+
+/* PRIZE SECTION */
+#prize-content { background: #fff; color: #111; display: flex; width: 100%; height: 100vh; }
+.collage-half { flex: 1.1; padding: 20px; display: flex; align-items: center; justify-content: center; background: #ececec; }
+.collage-half img { max-width: 95%; max-height: 90vh; border: 12px solid white; box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
+
+.letter-half { flex: 0.9; padding: 60px; display: flex; flex-direction: column; justify-content: center; }
+.letter-text { 
+    font-family: 'Instrument Sans', sans-serif; 
+    font-style: italic;
+    font-size: 1.5rem; 
+    line-height: 1.6; 
+    margin-bottom: 40px; 
+    color: #333;
+}
+.valentine-ask { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 25px; color: #b11226; }
+
+/* FINAL MESSAGE */
+#final-reveal { background: #fff; text-align: center; }
+.red-card { width: 450px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); margin-top: 20px; }
+</style>
+</head>
+
+<body>
+
+<section id="landing" class="center">
+  <h1>Some games are about luck.</h1>
+  <p style="font-style: italic; opacity: 0.8; font-size: 1.2rem;">Some are about choices.</p>
+  <button onclick="startGame()">Deal the cards</button>
+</section>
+
+<section id="table" class="center hidden">
+  <div class="cards" id="cards-container"></div>
+  
+  <div class="action-area">
+      <div class="pot" id="pot">
+        <span id="pot-label" style="font-size: 0.8rem; opacity: 0.5;">THE POT</span>
+        <div id="prize-trigger" class="prize-trigger hidden" onclick="openPrize()">🎁</div>
+      </div>
+
+      <div class="chips">
+        <div class="chip" onclick="dealCard(this, 0)">LAUGHS</div>
+        <div class="chip" onclick="dealCard(this, 1)">RAGEBAIT</div>
+        <div class="chip" onclick="dealCard(this, 2)">ATTRACTION</div>
+        <div class="chip" onclick="dealCard(this, 3)">HALF BITES</div>
+        <div class="chip" onclick="dealCard(this, 4)">ALL IN</div>
+      </div>
+  </div>
+</section>
+
+<section id="prize-content" class="hidden">
+    <div class="collage-half">
+        <img src="Collage.png" alt="Our Valentine Collage">
+    </div>
+    <div class="letter-half">
+        <div class="letter-text">
+            My Cutiepie,<br><br>
+            No matter how the cards fall, I'm always choosing you. We might not be always 50-50 for each other, but if we can be 10-90, 30-70 or any other ratio and still complete each other - that should be something that matters. I won't say a lot except one thing - I love you and you will always be my favourite person. 
+        </div>
+        
+        <h2 class="valentine-ask">Will you be my Valentine?</h2>
+        
+        <div style="display:flex; gap: 20px;">
+            <button style="border-color: #b11226; color: #b11226; font-weight: bold;" onclick="showFinal()">YES ❤️</button>
+            <button style="border-color: #555; color: #555;" onclick="bruhAlert()">NO</button>
+        </div>
+    </div>
+</section>
+
+<section id="final-reveal" class="center hidden">
+    <h1 style="font-family: 'Sacramento'; font-size: 4.5rem; color: #b11226;">Our Bond Renews Today!</h1>
+    <p style="color: #444; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">BTW, HERE IS SOMETHING MORE FOR YOUUU...</p>
+    <img src="Grey Red Simple Monimalist Foto Collage Happy Valentine Day Instagram Post (1).png" class="red-card" alt="Love Message">
+</section>
+
+<script>
+const cardData = [
+  { rank: "10", pic: "PXL_20240815_132520543.jpg", msg: "I'll always laugh in the pictures you click of me." },
+  { rank: "J", pic: "PXL_20241110_151519182.jpg", msg: "Are you sure you can ragebait me in my game only?" },
+  { rank: "Q", pic: "IMG-20250201-WA0021.jpg", msg: "That makeout was worth the risk, wasn't it?" },
+  { rank: "K", pic: "PXL_20250825_162444615.jpg", msg: "I'll always have the half bites from your bitesss." },
+  { rank: "A", pic: "PXL_20250329_172843237.jpg", msg: "Damnn, you went all in? For me? Awww" }
+];
+
+let flippedCount = 0;
+
+function startGame() {
+    document.getElementById("landing").classList.add("hidden");
+    document.getElementById("table").classList.remove("hidden");
+}
+
+function dealCard(chip, index) {
+    if(chip.classList.contains("used")) return;
+    chip.classList.add("used");
+    
+    const data = cardData[index];
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+        <div class="card-inner">
+            <div class="card-face card-back">♥</div>
+            <div class="card-face card-front">
+                <div class="corner top">
+                    <span class="corner-rank">${data.rank}</span>
+                    <span class="corner-suit">♥</span>
+                </div>
+
+                <img src="${data.pic}" class="card-photo">
+                <div class="card-msg">${data.msg}</div>
+
+                <div class="corner bottom">
+                    <span class="corner-rank">${data.rank}</span>
+                    <span class="corner-suit">♥</span>
+                </div>
+            </div>
+        </div>`;
+        
+    card.onclick = function() {
+        if (!this.classList.contains("flip")) {
+            this.classList.add("flip");
+            flippedCount++;
+            if (flippedCount === 5) {
+                document.getElementById("pot-label").classList.add("hidden");
+                document.getElementById("prize-trigger").classList.remove("hidden");
+            }
+        }
+    };
+    document.getElementById("cards-container").appendChild(card);
+}
+
+function openPrize() {
+    document.getElementById("table").classList.add("hidden");
+    document.getElementById("prize-content").classList.remove("hidden");
+}
+
+function bruhAlert() {
+    alert("BRUHH WHAT? 💀\n\nHow could you say no to a Royal Flush?\nTry again nowwww.");
+}
+
+function showFinal() {
+    document.getElementById("prize-content").classList.add("hidden");
+    document.getElementById("final-reveal").classList.remove("hidden");
+}
+</script>
+</body>
+</html>
